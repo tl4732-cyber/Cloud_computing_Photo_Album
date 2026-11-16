@@ -32,7 +32,8 @@ apiGateway.core.apiGatewayClientFactory.newClient = function (simpleHttpClientCo
             request.headers['x-api-key'] = apiKey;
         }
 
-        if (request.body === undefined || request.body === '' || request.body === null || Object.keys(request.body).length === 0) {
+        var isBinary = typeof Blob !== "undefined" && request.body instanceof Blob;
+        if (!isBinary && (request.body === undefined || request.body === '' || request.body === null || Object.keys(request.body).length === 0)) {
             request.body = undefined;
         }
 

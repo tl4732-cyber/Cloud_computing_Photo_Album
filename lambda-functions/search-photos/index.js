@@ -39,10 +39,14 @@ exports.handler = async (event) => {
     console.log("lex", JSON.stringify(lexResp.sessionState));
 
     const slots = lexResp.sessionState?.intent?.slots || {};
-    const keywords = ["keyword1", "keyword2"]
+    const slotKeywords = ["keyword1", "keyword2"]
       .map((name) => slots[name]?.value?.interpretedValue || slots[name]?.value?.originalValue)
       .filter(Boolean)
       .map((word) => word.toLowerCase());
+
+    const stopWords = new Set(["show", "me", "photos", "photo", "with", "of", "find", "a", "an", "the", "and", "in", "them", "please"]);
+    const textKeywords = query.toLowerCase().split(/[^a-z0-9]+/).filter((word) => word && !stopWords.has(word));
+    const keywords = textKeywords.length > slotKeywords.length ? textKeywords : slotKeywords;
 
     if (keywords.length === 0) {
       return { statusCode: 200, headers, body: JSON.stringify({ results: [] }) };
