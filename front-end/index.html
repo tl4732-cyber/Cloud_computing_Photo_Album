@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Photo Album</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; max-width: 960px; }
+    input, button { font-size: 16px; padding: 8px; }
+    #q { width: 420px; }
+    .grid { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 16px; }
+    figure { margin: 0; width: 220px; }
+    img { width: 220px; height: 160px; object-fit: cover; background: #eee; }
+    figcaption { font-size: 14px; }
+    #build { color: #555; }
+  </style>
+</head>
+<body>
+  <h1>Photo Album</h1>
+  <p id="build">Deploy version 1</p>
+
+  <h2>Search</h2>
+  <input id="q" placeholder="show me dogs" />
+  <button id="search">Search</button>
+  <p id="status"></p>
+  <div id="results" class="grid"></div>
+
+  <h2>Upload</h2>
+  <input id="file" type="file" accept="image/jpeg,image/png" />
+  <input id="labels" placeholder="custom labels, comma separated" />
+  <button id="upload">Upload</button>
+
+  <script src="lib/axios/dist/axios.standalone.js"></script>
+  <script src="lib/CryptoJS/rollups/crypto-js.js"></script>
+  <script src="lib/CryptoJS/rollups/sha256.js"></script>
+  <script src="lib/CryptoJS/components/hmac.js"></script>
+  <script src="lib/CryptoJS/components/enc-base64.js"></script>
+  <script src="lib/url-template/url-template.js"></script>
+  <script src="lib/apiGatewayCore/sigV4Client.js"></script>
+  <script src="lib/apiGatewayCore/apiGatewayClient.js"></script>
+  <script src="lib/apiGatewayCore/simpleHttpClient.js"></script>
+  <script src="lib/apiGatewayCore/utils.js"></script>
+  <script src="apigClient.js"></script>
+  <script src="config.js"></script>
+  <script>
+    var client = apigClientFactory.newClient({ apiKey: window.APP_CONFIG.apiKey });
+
+    function search() {
+      var q = document.getElementById("q").value;
+      document.getElementById("status").textContent = "Searching for: " + q;
+      client.searchGet({ q: q }, {}, {}).then(function (res) {
+        var data = res.data || {};
+        var results = data.results || [];
+        var box = document.getElementById("results");
+        box.innerHTML = "";
+        document.getElementById("status").textContent = results.length + " photo(s)";
+        results.forEach(function (photo) {
+          var fig = document.createElement("figure");
+          var img = document.createElement("img");
+          img.src = photo.url;
+          img.alt = (photo.labels || []).join(", ");
+          var cap = document.createElement("figcaption");
+          cap.textContent = (photo.labels || []).join(", ");
+          fig.appendChild(img);
+          fig.appendChild(cap);
+          box.appendChild(fig);
+        });
+      }).catch(function (err) {
+        console.error(err);
+        document.getElementById("status").textContent = "Search failed. See the browser console.";
+      });
+    }
+
+    function upload() {
+      var file = document.getElementById("file").files[0];
+      var labels = document.getElementById("labels").value;
+      if (!file) return;
+      var params = {
+        object: file.name,
+        "Content-Type": file.type || "image/jpeg",
+        "x-amz-meta-customLabels": labels
+      };
+      document.getElementById("status").textContent = "Uploading " + file.name;
+      client.photosObjectPut(params, file, {}).then(function () {
+        document.getElementById("status").textContent =
+          "Uploaded. Wait a few seconds, then search one of its labels.";
+      }).catch(function (err) {
+        console.error(err);
+        document.getElementById("status").textContent = "Upload failed. See the browser console.";
+      });
+    }
+
+    document.getElementById("search").onclick = search;
+    document.getElementById("q").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") search();
+    });
+    document.getElementById("upload").onclick = upload;
+  </script>
+</body>
+</html>
