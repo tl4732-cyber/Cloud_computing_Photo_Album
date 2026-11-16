@@ -1,0 +1,5 @@
+version: 0.2
+phases:
+  build:
+    commands:
+      - aws s3 sync "$CODEBUILD_SRC_DIR/front-end/" s3://tl4732-a3-frontend --delete

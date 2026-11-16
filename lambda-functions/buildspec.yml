@@ -1,0 +1,15 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      nodejs: 20
+  build:
+    commands:
+      - cd "$CODEBUILD_SRC_DIR/lambda-functions/index-photos"
+      - npm install --omit=dev
+      - zip -r index-photos.zip index.js package.json package-lock.json node_modules
+      - aws lambda update-function-code --function-name index-photos --zip-file fileb://index-photos.zip
+      - cd "$CODEBUILD_SRC_DIR/lambda-functions/search-photos"
+      - npm install --omit=dev
+      - zip -r search-photos.zip index.js package.json package-lock.json node_modules
+      - aws lambda update-function-code --function-name search-photos --zip-file fileb://search-photos.zip
