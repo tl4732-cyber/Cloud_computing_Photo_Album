@@ -1,0 +1,9 @@
+{
+  "name": "search-photos",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@aws-sdk/client-lex-runtime-v2": "^3.685.0",
+    "@opensearch-project/opensearch": "^2.13.0"
+  }
+}
