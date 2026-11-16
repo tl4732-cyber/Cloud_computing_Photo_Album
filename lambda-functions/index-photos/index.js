@@ -1,4 +1,3 @@
-cat > lambda-functions/index-photos/index.js << 'EOF'
 const { S3Client, HeadObjectCommand } = require("@aws-sdk/client-s3");
 const { RekognitionClient, DetectLabelsCommand } = require("@aws-sdk/client-rekognition");
 const { Client } = require("@opensearch-project/opensearch");
@@ -55,4 +54,3 @@ exports.handler = async (event) => {
 
   return doc;
 };
-EOF

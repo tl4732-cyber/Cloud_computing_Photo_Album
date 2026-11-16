@@ -1,4 +1,3 @@
-cat > lambda-functions/index-photos/package.json << 'EOF'
 {
   "name": "index-photos",
   "version": "1.0.0",
@@ -9,4 +8,3 @@ cat > lambda-functions/index-photos/package.json << 'EOF'
     "@opensearch-project/opensearch": "^2.13.0"
   }
 }
-EOF
